@@ -5,12 +5,10 @@ Total Leakage = SUM ( discrepancies[variance_rs] )
 
 Disputed AWBs = DISTINCTCOUNT ( discrepancies[awb_number] )
 
+Settled AWBs = SUM ( kpi_daily[orders] )
+
 Dispute Pct =
-DIVIDE ( [Disputed AWBs], DISTINCTCOUNT ( kpi_daily[orders] ) + 0 ) * 0
-    + DIVIDE (
-        DISTINCTCOUNT ( discrepancies[awb_number] ),
-        CALCULATE ( DISTINCTCOUNT ( kpi_daily[orders] ), ALL ( discrepancies ) )
-    )
+DIVIDE ( [Disputed AWBs], [Settled AWBs] )
 
 Avg DSO = AVERAGE ( kpi_daily[avg_dso_days] )
 
