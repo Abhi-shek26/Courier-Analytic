@@ -33,3 +33,39 @@ Reliability Score =
 0.4 * AVERAGE ( courier_scorecard[ontime] )
     + 0.35 * ( 1 - AVERAGE ( courier_scorecard[dispute] ) )
     + 0.25 * ( 1 - AVERAGE ( courier_scorecard[phantom] ) )
+
+-- ---- Olist real-data page (tables: olist_review_impact, olist_monthly, olist_seller_late)
+Olist Late Rate =
+DIVIDE (
+    CALCULATE ( SUM ( olist_monthly[late_orders] ) ),
+    SUM ( olist_monthly[orders_] )
+)
+
+Olist Bad Review Rate (Late) =
+DIVIDE (
+    CALCULATE (
+        SUM ( olist_review_impact[orders_] ),
+        olist_review_impact[late_flag] = "Late",
+        olist_review_impact[sentiment] = "Bad"
+    ),
+    CALCULATE (
+        SUM ( olist_review_impact[orders_] ),
+        olist_review_impact[late_flag] = "Late"
+    )
+)
+
+Olist Bad Review Rate (On-time) =
+DIVIDE (
+    CALCULATE (
+        SUM ( olist_review_impact[orders_] ),
+        olist_review_impact[late_flag] = "On-time",
+        olist_review_impact[sentiment] = "Bad"
+    ),
+    CALCULATE (
+        SUM ( olist_review_impact[orders_] ),
+        olist_review_impact[late_flag] = "On-time"
+    )
+)
+
+Olist Review Lift (pp) =
+[Olist Bad Review Rate (Late)] - [Olist Bad Review Rate (On-time)]
