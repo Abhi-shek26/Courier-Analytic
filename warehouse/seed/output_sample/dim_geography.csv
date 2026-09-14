@@ -1,0 +1,7 @@
+geo_id,city,tier,zone
+1,Mumbai,Tier-1,West
+2,Delhi,Tier-1,North
+3,Pune,Tier-2,West
+4,Indore,Tier-2,Central
+5,Jaipur,Tier-3,North
+6,Lucknow,Tier-3,North

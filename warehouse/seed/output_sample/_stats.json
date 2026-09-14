@@ -1,0 +1,8 @@
+{
+  "orders": 25000,
+  "settlementRows": 25275,
+  "duplicatesInjected": 275,
+  "days": 90,
+  "seed": 42,
+  "signals": "bluedart-tier3-weight, shiprocket-festival-overdue, delhivery-cod-short, phantom-rto, kwikship-eta, dtdc-forward, 1pct-dup"
+}

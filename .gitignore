@@ -8,4 +8,5 @@ __pycache__/
 .venv/
 powerbi/*.pbix
 docs/img/*.png
+warehouse/seed/output/
 .DS_Store
