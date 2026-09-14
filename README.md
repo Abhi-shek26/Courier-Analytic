@@ -1,4 +1,4 @@
-# Courier Leakage Analytic
+# Courier-Analytic
 
 > Blinkit-style COD settlement reconciliation + leakage RCA system.
 > Built for **Product Analyst** interviews (Eternal/Zomato track): SQL-first, Python-validated, business impact in ₹.
@@ -6,19 +6,21 @@
 **North-star:** Recoverable leakage detected (₹) · **Inputs:** dispute rate %, DSO days, courier reliability score.
 
 ## Why this exists
-Courier settlement files rarely match reality: COD short-remitted, weight inflated, phantom RTO on delivered orders, overdue remittance, duplicate AWBs. This system ingests 25k shipments over 90 days, reconciles against orders via 7 rules, streams discrepancy events through Kafka, models them in a Snowflake-style star schema (Postgres locally), validates with Python stats, and serves RCA via API + dashboard + PowerBI.
+Courier settlement files rarely match reality: COD short-remitted, weight inflated, phantom RTO on delivered orders, overdue remittance, duplicate AWBs. This system ingests 25k shipments over 90 days, reconciles against orders via 7 rules, streams discrepancy events through Kafka, models them in an MS SQL Server star schema (Postgres/Snowflake DDL kept as portable siblings), validates with Python stats, and serves RCA via API + dashboard + PowerBI.
 
-## 5-min demo
-1. `docker compose up -d` → postgres + redpanda + api
-2. `npm run warehouse:seed` → 25k deterministic rows with Tier-2/3 signals
-3. `npm run reconcile` → 7-rule engine → Kafka `discrepancy.events`
+## 5-min demo (SSMS-first)
+1. Create DB `CourierAnalytic` in SSMS → run `warehouse/ddl/mssql/schema.sql`
+2. `cd warehouse/seed && npm run generate` → 25k rows → `BULK INSERT` via `warehouse/ddl/mssql/load_sample.sql`
+3. Run any `warehouse/queries/mssql/*.sql` in SSMS (RANK, LAG, ROW_NUMBER, NTILE)
+4. `docker compose up -d` → redpanda (kafka) + mssql → `npm run reconcile` → Kafka `discrepancy.events`
 4. Open dashboard → Leakage ₹, Pareto by courier, Funnel, Courier Scorecard, RCA workbench
 5. Open `/warehouse/queries/` → run `courier_scorecard.sql` (window + rank)
 6. Open `/python/notebooks/01_eda.ipynb` → t-test: Bluedart Tier-3 overcharge significant?
 
 ## Stack (PA-first, production-flavoured)
+- **Warehouse (PRIMARY):** MS SQL Server — `warehouse/ddl/mssql/`, queries `warehouse/queries/mssql/` (T-SQL, SSMS-ready)
+- **Warehouse (portable):** Postgres + Snowflake DDL kept in sync (same grain)
 - **Streaming:** Kafka (Redpanda locally) — `settlement.raw`, `discrepancy.events`
-- **Warehouse:** Postgres 16 locally, Snowflake DDL in `/warehouse/ddl/snowflake/` (same SQL)
 - **Transform:** dbt-style SQL models `/warehouse/models/` (staging → marts)
 - **Engine:** Node.js reconciliation (ported + hardened from FEA, 7 rules)
 - **Analytics:** Python pandas/scipy/sklearn, notebooks + scripts

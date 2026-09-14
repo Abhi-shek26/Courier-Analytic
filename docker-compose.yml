@@ -1,14 +1,14 @@
 services:
-  postgres:
-    image: postgres:16
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      POSTGRES_DB: leakage_mart
-      POSTGRES_USER: analyst
-      POSTGRES_PASSWORD: analyst123
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Analyst123!"
+      MSSQL_PID: "Developer"
     ports:
-      - "5432:5432"
+      - "1433:1433"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - mssqldata:/var/opt/mssql
 
   redpanda:
     image: redpandadata/redpanda:v23.11.1
@@ -23,4 +23,4 @@ services:
       - "9092:9092"
 
 volumes:
-  pgdata:
+  mssqldata:
