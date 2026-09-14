@@ -3,7 +3,7 @@
 > COD settlement reconciliation + leakage RCA for e-commerce logistics.
 > **₹22,34,719 leakage · 5,774 disputed AWBs (23.1%) · 25,000 shipments · 90 days**
 >
-> Live demo: _(paste Vercel URL here)_ · PowerBI: `powerbi/Courier-Analytic.pbix` + [overview](docs/img/powerbi_overview.png)
+> Live demo: https://courier-analytic.vercel.app/ · PowerBI: `powerbi/Courier-Analytic.pbix` + [overview](docs/img/powerbi_overview.png)
 
 ## 5-minute demo
 1. **Dashboard** — `cd dashboard && npm install && npm run dev`: KPI header → trend → Pareto → RCA workbench.
