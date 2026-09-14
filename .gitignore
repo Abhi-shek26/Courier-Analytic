@@ -9,4 +9,6 @@ __pycache__/
 powerbi/*.pbix
 docs/img/*.png
 warehouse/seed/output/
+engine/events/*.jsonl
+!engine/events/sample.jsonl
 .DS_Store

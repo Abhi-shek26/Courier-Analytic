@@ -13,14 +13,14 @@ services:
       - ./warehouse/ddl/mssql:/ddl:ro
 
   redpanda:
-    image: redpandadata/redpanda:v23.11.1
+    image: redpandadata/redpanda:latest
     command:
       - redpanda
       - start
       - --smp 1
       - --overprovisioned
       - --kafka-addr 0.0.0.0:9092
-      - --advertise-kafka-addr redpanda:9092
+      - --advertise-kafka-addr localhost:9092
     ports:
       - "9092:9092"
 
