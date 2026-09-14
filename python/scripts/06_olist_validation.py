@@ -34,8 +34,8 @@ print(f"orders={len(orders)} delivered={(orders.order_status=='delivered').sum()
 
 # --- Rule port 1: late delivery (ETA_SLA_BREACH analogue) ---
 dlv = orders[orders.order_status == "delivered"].copy()
-dlv["late_days"] = (dlv.order_delivered_customer_date - dlv.order_estimated_delivery_date).dt.days
-dlv["late"] = dlv.late_days > 0
+dlv["late_days"] = (dlv.order_delivered_customer_date - dlv.order_estimated_delivery_date).dt.total_seconds() / 86400
+dlv["late"] = dlv.order_delivered_customer_date > dlv.order_estimated_delivery_date
 late_rate = dlv.late.mean()
 print(f"late deliveries: {dlv.late.sum()} / {len(dlv)} = {late_rate:.1%}, avg late {dlv[dlv.late].late_days.mean():.1f} days")
 

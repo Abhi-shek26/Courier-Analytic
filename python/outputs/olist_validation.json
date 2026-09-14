@@ -1,12 +1,12 @@
 {
  "orders": 99441,
- "late_rate": 0.0677,
- "late_n": 6534,
+ "late_rate": 0.0811,
+ "late_n": 7826,
  "mismatch_rate": 0.0025,
  "mismatch_value_brl": 3262.0,
  "freight_outliers": 983,
- "bad_review_late": 0.7322,
- "bad_review_ontime": 0.1732,
+ "bad_review_late": 0.6534,
+ "bad_review_ontime": 0.1719,
  "chi2_p": 0.0,
  "sellers_scored": 462,
  "worst_seller_late_rate": 0.321
