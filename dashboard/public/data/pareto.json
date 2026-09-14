@@ -1,0 +1,37 @@
+[
+ {
+  "courier_":"Shiprocket",
+  "leakage":1007877.0,
+  "cases_":840,
+  "pct":45.1,
+  "running_pct":45.1
+ },
+ {
+  "courier_":"Delhivery",
+  "leakage":456357.0,
+  "cases_":1170,
+  "pct":20.4,
+  "running_pct":65.5
+ },
+ {
+  "courier_":"Bluedart",
+  "leakage":290980.0,
+  "cases_":1297,
+  "pct":13.0,
+  "running_pct":78.5
+ },
+ {
+  "courier_":"Kwikship",
+  "leakage":256634.0,
+  "cases_":962,
+  "pct":11.5,
+  "running_pct":90.0
+ },
+ {
+  "courier_":"DTDC",
+  "leakage":222871.0,
+  "cases_":2187,
+  "pct":10.0,
+  "running_pct":100.0
+ }
+]

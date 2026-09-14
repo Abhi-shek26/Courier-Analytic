@@ -1,0 +1,22 @@
+[
+ {
+  "stage": "Orders",
+  "n": 25000
+ },
+ {
+  "stage": "Delivered",
+  "n": 17900
+ },
+ {
+  "stage": "Settled",
+  "n": 25000
+ },
+ {
+  "stage": "Matched",
+  "n": 19226
+ },
+ {
+  "stage": "Disputed",
+  "n": 5774
+ }
+]
