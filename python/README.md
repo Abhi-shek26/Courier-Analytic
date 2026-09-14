@@ -21,3 +21,12 @@ python scripts/04_forecast.py
 - **Forecast:** Ridge(t, festival) R²=0.32; leakage trending +₹7k/week. See `outputs/leakage_forecast.csv`.
 
 Charts: `docs/img/eda_*` + `forecast.png`. These feed L4 dashboard + PowerBI.
+
+## Real-data validation — Olist (99,441 Brazilian e-commerce orders)
+`scripts/06_olist_validation.py` ports the engine onto Kaggle's `olistbr/brazilian-ecommerce`:
+- Late delivery (ETA-breach analogue): **6.8%**, avg **10.6 days** late.
+- Payment-vs-bill mismatches (settlement analogue): 249 orders (0.25%).
+- Freight outliers (excess-charge analogue): 983 orders where freight > 146% of price.
+- **Late → 73.2% bad reviews vs 17.3% on-time** (χ²=11197, p≈0) — delivery SLA directly moves CSAT.
+- 462 sellers scored, worst at 32.1% late (scorecard analogue).
+- See `outputs/olist_validation.json` + `docs/img/olist_late_vs_reviews.png`.
