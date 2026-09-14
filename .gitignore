@@ -6,7 +6,6 @@ build/
 __pycache__/
 .ipynb_checkpoints/
 .venv/
-powerbi/*.pbix
 warehouse/seed/output/
 engine/events/*.jsonl
 !engine/events/sample.jsonl

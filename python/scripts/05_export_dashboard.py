@@ -100,6 +100,11 @@ te = query("""SELECT ge.tier, COUNT(*) orders_, SUM(o.order_value) gmv,
   LEFT JOIN dbo.fact_discrepancies d ON d.awb_number=o.awb_number GROUP BY ge.tier""")
 te.to_json(DASH / "tier_entry.json", orient="records", indent=1)
 
+# --- Olist validation snapshot (from 06 output, for dashboard panel) ---
+import shutil
+shutil.copy(pathlib.Path(__file__).parent.parent / "outputs" / "olist_validation.json",
+            DASH / "olist.json")
+
 # --- PowerBI datasets ---
 query("""SELECT CONVERT(NVARCHAR(10), k.kpi_date, 23) kpi_date, cu.courier_name courier_,
   ge.city, ge.tier, k.orders, k.disputed_awbs, k.leakage_rs, k.avg_dso_days

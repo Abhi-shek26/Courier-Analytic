@@ -11,9 +11,10 @@ function useData() {
   const [d, setD] = useState({});
   useEffect(() => {
     Promise.all(['kpis.json', 'trend.json', 'pareto.json', 'funnel.json',
-      'scorecard.json', 'rca_cells.json', 'merchants.json', 'tier_entry.json']
-      .map(get)).then(([kpis, trend, pareto, funnel, scorecard, cells, merchants, tiers]) =>
-      setD({ kpis, trend, pareto, funnel, scorecard, cells, merchants, tiers }));
+      'scorecard.json', 'rca_cells.json', 'merchants.json', 'tier_entry.json',
+      'olist.json']
+      .map(get)).then(([kpis, trend, pareto, funnel, scorecard, cells, merchants, tiers, olist]) =>
+      setD({ kpis, trend, pareto, funnel, scorecard, cells, merchants, tiers, olist }));
   }, []);
   return d;
 }
@@ -56,7 +57,7 @@ function RcaWorkbench({ cells }) {
 }
 
 export default function App() {
-  const { kpis, trend, pareto, funnel, scorecard, cells, merchants, tiers } = useData();
+  const { kpis, trend, pareto, funnel, scorecard, cells, merchants, tiers, olist } = useData();
   if (!kpis) return <div className="loading">Loading Courier-Analytic…</div>;
   return (
     <div className="wrap">
@@ -132,6 +133,18 @@ export default function App() {
               <td>{m.orders_}</td><td>{m.health}</td><td>{m.value_quartile}</td></tr>
           ))}</tbody></table>
       </div>
+
+      {olist && (
+        <div className="card" style={{ borderLeft: '4px solid #2f855a' }}>
+          <h3>Validated on real data — Olist, {olist.orders.toLocaleString('en-IN')} Brazilian e-commerce orders</h3>
+          <p className="why">
+            Same rules, real orders: <b>{(100 * olist.late_rate).toFixed(1)}% late</b> ({olist.late_n.toLocaleString('en-IN')} orders);{' '}
+            late orders get <b>{(100 * olist.bad_review_late).toFixed(1)}% bad reviews vs {(100 * olist.bad_review_ontime).toFixed(1)}% on-time</b>;{' '}
+            {olist.sellers_scored} sellers scored, worst at {(100 * olist.worst_seller_late_rate).toFixed(1)}% late.
+            Delivery SLA moves CSAT.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
