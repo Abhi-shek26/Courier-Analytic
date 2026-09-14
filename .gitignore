@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+.env
+*.log
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+powerbi/*.pbix
+docs/img/*.png
+.DS_Store
