@@ -1,6 +1,6 @@
-# Case: hotel revenue dropped 7–8% — RCA with Courier-Analytic method
+# Case: revenue dropped 7–8% — RCA method
 
-Prompt seen in Eternal interviews: *"revenue of a hotel chain is declining 7–8%, diagnose."*
+Context: revenue of a regional operation is declining 7–8%. Diagnose.
 Framework below is logistics-flavoured but transfers 1:1 (replace courier→property, AWB→booking).
 
 ## Framework (state it in the first 60 seconds)
@@ -14,11 +14,11 @@ Framework below is logistics-flavoured but transfers 1:1 (replace courier→prop
 - Second cell: **duplicate settlements ₹9.1L** — same AWB paid twice across batches (275 AWBs).
 - T2 χ² test (`02_hypothesis_tests.py`): festival dispute 36.7% vs 21.8%, p≈2e-56 → process failure under load, not pricing.
 
-## Recommendation shape (what interviewers score)
+## Recommendation shape
 - Now: hold high-value COD with Delhivery, auto-hold duplicate AWBs at ingestion (idempotency key already in engine).
 - Next: festival SLA buffer + courier penalty clause for Bluedart Tier-3 (+12.98% inflation, p≈6e-256).
 - Metric to watch: dispute % back under 15% and DSO under 7 days within 4 weeks.
 
-## Lines to say
-> "I wouldn't start with causes. I'd slice the 7% by segment and week first — in my
+## Notes
+> "Don't start with causes. Slice the 7% by segment and week first — in this
 > project the same method isolated a festival-week overdue spike worth ₹7.7L in one query."

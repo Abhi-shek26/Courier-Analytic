@@ -1,9 +1,9 @@
 # Courier-Analytic
 
-> Blinkit-style COD settlement reconciliation + leakage RCA — built for **Product Analyst** interviews.
+> COD settlement reconciliation + leakage RCA for e-commerce logistics.
 > **₹22,34,719 leakage · 5,774 disputed AWBs (23.1%) · 25,000 shipments · 90 days**
 
-## 5-minute demo (`docs/demo-script.md`)
+## 5-minute demo
 1. **Dashboard** — `cd dashboard && npm install && npm run dev`: KPI header → trend → Pareto → RCA workbench.
 2. **SQL** — SSMS on `CourierAnalytic`: `warehouse/queries/mssql/02_courier_scorecard.sql` (RANK), `03_rca_drilldown.sql` (LAG).
 3. **Python** — `python/scripts/02_hypothesis_tests.py`: Bluedart Tier-3 +12.98% (p≈6e-256); festival χ² (p≈2e-56).
@@ -28,7 +28,7 @@ CSV seed (25k, deterministic signals) → MSSQL star schema (CourierAnalytic)
 - **Engine:** `engine/sql/reconcile.sql` — 7 set-based rules with severity; `engine/reconcile.py` + `publish_events.py`.
 - **Analytics:** `python/scripts/` 01 EDA → 02 tests → 03 scorecard → 04 forecast → 05 export. Charts in `docs/img/`.
 - **Serving:** `dashboard/` (React + Recharts, static JSON, `npm run build` verified) + `powerbi/` (4 datasets, `measures.dax`, 10-min guide).
-- **Cases:** `case-studies/` — revenue-drop RCA, Blinkit Tier-2 entry, metrics glossary, guesstimate. Mapping: `docs/interview-mapping.md`.
+- **Cases:** `case-studies/` — revenue-drop RCA, Tier-2 expansion, metrics glossary, guesstimate.
 
 ## Local run (SSMS-first)
 ```bash
@@ -48,4 +48,4 @@ cd ../dashboard && npm install && npm run dev
 ```
 
 Data is synthetic with injected RCA signals (see `python/README.md`) — the tests are designed to catch them.
-Status: `v1.0-pa-ready`. Interview map: `docs/interview-mapping.md`.
+Status: `v1.0-pa-ready`. Full walkthrough: `docs/`.

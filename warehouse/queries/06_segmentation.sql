@@ -1,7 +1,7 @@
 -- 06 Merchant × Tier segmentation (Q15-Q16)
 -- Answers: "segment customers by business value, score them"
 
--- Q15: Merchant value segmentation (RFM-lite for Blinkit-style scoring)
+-- Q15: Merchant value segmentation (RFM-lite scoring)
 WITH m AS (
   SELECT o.merchant_id, COUNT(*) AS orders,
     SUM(o.order_value) AS gmv, SUM(COALESCE(d.variance_rs,0)) AS leakage_rs,
@@ -16,7 +16,7 @@ SELECT merchant_id, orders, gmv, leakage_rs,
        WHEN dispute_rate > 0.15 THEN 'watchlist' ELSE 'healthy' END AS health_band
 FROM m ORDER BY gmv DESC LIMIT 50;
 
--- Q16: Tier-2/3 entry math — margin after logistics leakage (Blinkit case input)
+-- Q16: Tier-2/3 entry math — margin after logistics leakage (expansion case input)
 SELECT g.tier, COUNT(*) AS orders, SUM(o.order_value) AS gmv,
   COALESCE(SUM(d.variance_rs),0) AS leakage_rs,
   ROUND(100.0*COALESCE(SUM(d.variance_rs),0)/NULLIF(SUM(o.order_value),0),2) AS leakage_pct_of_gmv,

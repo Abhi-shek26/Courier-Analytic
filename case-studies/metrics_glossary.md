@@ -1,4 +1,4 @@
-# Metrics glossary (say these exactly in interviews)
+# Metrics glossary
 
 ## North star
 - **Recoverable leakage (₹)** — `SUM(variance_rs)` over `fact_discrepancies`. Currently **₹22,34,719**.
@@ -10,7 +10,7 @@
 - **Recovery rate** — ₹ recovered / ₹ flagged (track post-dispute; engine emits `suggestedAction` per type).
 - **False-positive rate** — matched-on-review / flagged. Tolerance `min(2%, ₹10)` and 10% weight band exist to hold this down.
 - **Merchant health** — dispute-rate bands (healthy <15%, watchlist <30%, high-risk above) × GMV quartiles (`merchants.json`).
-- **Retention (analogy answer)** — for merchants: % still shipping at W+4 after a dispute; disputes are a churn driver, same as delivery-partner quits in Q&A.
+- **Retention (analogy)** — for merchants: % still shipping at W+4 after a dispute; disputes are a churn driver.
 
 ## Funnel (dashboard order)
 Orders (25,000) → Delivered → Settled (25,000) → Matched (19,226) → Disputed (5,774).

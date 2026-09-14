@@ -1,7 +1,7 @@
-# Case: should Blinkit enter a Tier-2 / Tier-3 city?
+# Case: should a quick-commerce player enter a Tier-2 / Tier-3 city?
 
-Prompt seen in Eternal interviews: *"should Blinkit enter my Tier-2/Tier-3 city?"*
-Use `tier_entry.json` + Q16 (`06_segmentation.sql`) as your numbers.
+Context: expansion decision for a Tier-2/Tier-3 city.
+Use `tier_entry.json` + Q16 (`06_segmentation.sql`) as the numbers.
 
 ## Framework: demand × margin after logistics × execution risk
 1. **Demand:** order density, COD share (cash handling cost), basket value.
@@ -20,6 +20,6 @@ Use `tier_entry.json` + Q16 (`06_segmentation.sql`) as your numbers.
 - Festival weeks: dispute 36.7% → launch outside peak, pre-staff support.
 
 ## Verdict shape
-> "Go for Tier-2 (Indore-type): demand density + leakage at 2.4% of GMV + Delhivery/Shiprocket
-> reliability ~70+. No-go Tier-3 until the +13% Tier-3 inflation cell is contracted away —
+> "Go for Tier-2 (Indore-type): demand density + leakage at 2.4% of GMV + top-courier
+> reliability ~70+. Hold Tier-3 until the +13% Tier-3 inflation cell is contracted away —
 > that's a 2-point margin swing on COD-heavy assortments."

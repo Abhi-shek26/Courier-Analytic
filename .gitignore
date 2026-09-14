@@ -10,4 +10,5 @@ powerbi/*.pbix
 warehouse/seed/output/
 engine/events/*.jsonl
 !engine/events/sample.jsonl
+prep/
 .DS_Store

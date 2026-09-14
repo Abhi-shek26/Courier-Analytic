@@ -1,5 +1,5 @@
 -- 03 RCA drilldown: what moved, where, MoM with LAG (Q7-Q9)
--- Use when interviewer says: "revenue dropped 7-8%, diagnose"
+-- Pattern: "revenue dropped 7-8%, diagnose" — slice by segment x week first
 
 -- Q7: Week-over-week leakage change (LAG to spot the spike week)
 WITH w AS (

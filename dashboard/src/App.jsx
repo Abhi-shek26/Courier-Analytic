@@ -105,7 +105,7 @@ export default function App() {
           <table><tbody>{funnel.map((f) => (
             <tr key={f.stage}><td>{f.stage}</td><td><b>{f.n.toLocaleString('en-IN')}</b></td></tr>
           ))}</tbody></table>
-          <h3 style={{ marginTop: 16 }}>Tier entry math (Blinkit case input)</h3>
+          <h3 style={{ marginTop: 16 }}>Tier entry math (expansion case input)</h3>
           <table><thead><tr><th>Tier</th><th>Orders</th><th>Leakage % GMV</th><th>Avg delay</th></tr></thead>
             <tbody>{tiers.map((t) => (
               <tr key={t.tier}><td>{t.tier}</td><td>{t.orders_.toLocaleString('en-IN')}</td>

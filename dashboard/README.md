@@ -1,7 +1,7 @@
 # Dashboard (L4) — React product dashboard over static JSON exports
 
 Data: `public/data/*.json` generated from MSSQL via `python/scripts/05_export_dashboard.py`.
-No backend needed — deployable to Vercel/Netlify/GitHub Pages for interviews.
+No backend needed — deployable to Vercel/Netlify/GitHub Pages for demos.
 
 ```bash
 cd dashboard

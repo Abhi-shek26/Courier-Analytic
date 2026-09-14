@@ -1,9 +1,9 @@
-# Courier-Analytic — Build Plan (Eternal Product Analyst Target)
+# Courier-Analytic — Build Plan
 
 > Status: PLANNING APPROVED → EXECUTION IN LEVELS
 > Location: `C:\Users\HELLO\Desktop\Codings\Courier-Analytic`
 > Source reuse: `../FEA` (5 reconciliation rules, seed patterns, notification retry logic)
-> Goal: Not a backend CRUD. A Product Analytics system that an Eternal PA interviewer can interrogate for 60 minutes.
+> Goal: Not a backend CRUD. A Product Analytics system with SQL-first analysis, Python validation and business impact in ₹.
 
 ## 1. Why separate repo (agreed)
 
@@ -34,9 +34,9 @@ Reconciliation Engine (Node.js, ported + hardened from FEA)
   PowerBI: curated CSV exports + build guide + DAX measures
 ```
 
-Why this stack for PA interviews:
-- Kafka → shows streaming thinking (Blinkit-scale). Local via Redpanda, no cloud cost.
-- Snowflake → we ship Snowflake DDL + Postgres for local run. Same SQL (window fns, CTEs). Interviewer sees Snowflake on resume, can run Postgres locally.
+Why this stack:
+- Kafka → streaming ingestion layer (quick-commerce scale). Local via Redpanda, no cloud cost.
+- Snowflake → Snowflake DDL ships alongside Postgres; same SQL (window fns, CTEs), runnable locally on Postgres.
 - PowerBI → recruiters love it. We ship both: web dashboard (for demo) + PowerBI guide + DAX (for resume keyword).
 - dbt-style → shows analytics engineering maturity without needing dbt Cloud.
 - Docker Compose → one-command run: postgres + redpanda + api + worker.
@@ -84,9 +84,9 @@ Star schema DDL lives in `/warehouse/ddl/`. Seed in `/warehouse/seed/` (Node, de
 - Gate: screenshots + demo video script. Push.
 
 ### L5 — Case studies + polish (3 commits)
-- `/case-studies/`: rca_revenue_drop.md, blinkit_tier2_entry.md, metrics_glossary.md, guesstimate_cod_leakage_india.md
+- `/case-studies/`: rca_revenue_drop.md, tier2_city_expansion.md, metrics_glossary.md, guesstimate_cod_leakage.md
 - README final: impact first, architecture second, SQL samples, how to demo in 5 min.
-- Resume bullets + interview Q mapping.
+- Resume bullets + folder guide.
 - Gate: final tag `v1.0-pa-ready`. Push.
 
 Total: ~17 commits. No squashed mega-commit.
@@ -106,14 +106,14 @@ Rewrite:
 - webhook.site → internal notification log + optional webhook
 - Dashboard counts → ₹ impact + funnel + scorecard
 
-## 6. Interview mapping (why each folder exists)
+## 6. Folder guide (why each folder exists)
 
-| Eternal Q | Repo proof |
+| Question it answers | Repo proof |
 |---|---|
 | 3 hard SQL | `/warehouse/queries/*.sql` with window/rank |
 | Python output MCQ + stats | `/python/` pandas + t-test |
 | Hotel revenue -7% RCA | `/case-studies/rca_revenue_drop.md` + RCA workbench |
-| Blinkit Tier-2 entry | `/case-studies/blinkit_tier2_entry.md` using Tier-2 cost data |
+| Tier-2 expansion | `/case-studies/tier2_city_expansion.md` using Tier-2 cost data |
 | Rider ranking framework | `courier_scorecard.sql` + `compute_scorecard.py` |
 | ETA calculation | `ETA_SLA_BREACH` rule + `eta_sla.sql` |
 | Retention/metrics | `metrics_glossary.md` + funnel dashboard |
