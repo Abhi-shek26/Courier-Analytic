@@ -6,7 +6,7 @@ from kafka import KafkaProducer
 TOPIC = "discrepancy.events"
 
 
-def publish(path, bootstrap="localhost:9092"):
+def publish(path, bootstrap="localhost:29092"):
     n = 0
     producer = KafkaProducer(
         bootstrap_servers=bootstrap,

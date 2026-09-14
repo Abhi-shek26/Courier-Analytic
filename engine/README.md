@@ -31,4 +31,4 @@ sqlcmd -S localhost -E -C -d CourierAnalytic -Q "EXEC dbo.sp_reconcile_batch @ba
 pip install -r requirements.txt
 python reconcile.py
 ```
-Kafka: Redpanda `docker compose up -d redpanda` → `localhost:9092`, topic auto-created on first publish.
+Kafka: Apache Kafka (KRaft, `docker compose up -d kafka`) → `localhost:29092`, topic auto-created on first publish.
