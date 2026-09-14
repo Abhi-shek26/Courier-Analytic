@@ -1,7 +1,7 @@
-# Courier Leakage Analytic — Build Plan (Eternal Product Analyst Target)
+# Courier-Analytic — Build Plan (Eternal Product Analyst Target)
 
 > Status: PLANNING APPROVED → EXECUTION IN LEVELS
-> Location: `C:\Users\HELLO\Desktop\Codings\Courier Leakage Analytic`
+> Location: `C:\Users\HELLO\Desktop\Codings\Courier-Analytic`
 > Source reuse: `../FEA` (5 reconciliation rules, seed patterns, notification retry logic)
 > Goal: Not a backend CRUD. A Product Analytics system that an Eternal PA interviewer can interrogate for 60 minutes.
 
@@ -58,7 +58,7 @@ Star schema DDL lives in `/warehouse/ddl/`. Seed in `/warehouse/seed/` (Node, de
 
 ### L0 — Scaffold (this commit)
 - Folders, README skeleton, PLAN.md, .gitignore, docker-compose skeleton
-- Commits: `chore: scaffold Courier Leakage Analytic repo with plan`
+- Commits: `chore: scaffold Courier-Analytic repo with plan`
 - Push gate: init git, create GitHub repo `Courier-Leakage-Analytic`, push main.
 
 ### L1 — Warehouse + SQL (3 commits)
