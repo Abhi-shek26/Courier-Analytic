@@ -9,6 +9,8 @@ services:
       - "1433:1433"
     volumes:
       - mssqldata:/var/opt/mssql
+      - ./warehouse/seed/output:/seed:ro
+      - ./warehouse/ddl/mssql:/ddl:ro
 
   redpanda:
     image: redpandadata/redpanda:v23.11.1
