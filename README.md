@@ -1,63 +1,51 @@
 # Courier-Analytic
 
-> Blinkit-style COD settlement reconciliation + leakage RCA system.
-> Built for **Product Analyst** interviews (Eternal/Zomato track): SQL-first, Python-validated, business impact in ₹.
+> Blinkit-style COD settlement reconciliation + leakage RCA — built for **Product Analyst** interviews.
+> **₹22,34,719 leakage · 5,774 disputed AWBs (23.1%) · 25,000 shipments · 90 days**
 
-**North-star:** Recoverable leakage detected (₹) · **Inputs:** dispute rate %, DSO days, courier reliability score.
+## 5-minute demo (`docs/demo-script.md`)
+1. **Dashboard** — `cd dashboard && npm install && npm run dev`: KPI header → trend → Pareto → RCA workbench.
+2. **SQL** — SSMS on `CourierAnalytic`: `warehouse/queries/mssql/02_courier_scorecard.sql` (RANK), `03_rca_drilldown.sql` (LAG).
+3. **Python** — `python/scripts/02_hypothesis_tests.py`: Bluedart Tier-3 +12.98% (p≈6e-256); festival χ² (p≈2e-56).
+4. **Pipeline** — `EXEC dbo.sp_reconcile_batch`; Kafka `discrepancy.events` (6,456 events); PowerBI (`powerbi/build-guide.md`).
 
-## Why this exists
-Courier settlement files rarely match reality: COD short-remitted, weight inflated, phantom RTO on delivered orders, overdue remittance, duplicate AWBs. This system ingests 25k shipments over 90 days, reconciles against orders via 7 rules, streams discrepancy events through Kafka, models them in an MS SQL Server star schema (Postgres/Snowflake DDL kept as portable siblings), validates with Python stats, and serves RCA via API + dashboard + PowerBI.
+## Result table (live MSSQL, 2026-09-14)
+| Cut | Finding |
+|---|---|
+| By type | Duplicates ₹9.08L · Overdue ₹7.72L · Phantom RTO ₹2.90L · COD short ₹1.78L |
+| By courier | Shiprocket ₹10.09L · Delhivery ₹4.56L · Bluedart ₹2.91L |
+| Scorecard | Shiprocket 72.2 → Delhivery 70.2 → Bluedart 69.7 → Kwikship 68.4 → DTDC 63.7 |
+| Forecast | +₹7k/week trend (Ridge R²=0.32), 4-week forecast in `python/outputs/` |
 
-## 5-min demo (SSMS-first)
-1. Create DB `CourierAnalytic` in SSMS → run `warehouse/ddl/mssql/schema.sql`
-2. `cd warehouse/seed && npm run generate` → 25k rows → `BULK INSERT` via `warehouse/ddl/mssql/load_sample.sql`
-3. Run any `warehouse/queries/mssql/*.sql` in SSMS (RANK, LAG, ROW_NUMBER, NTILE)
-4. `docker compose up -d` → redpanda (kafka) + mssql → `npm run reconcile` → Kafka `discrepancy.events`
-4. Open dashboard → Leakage ₹, Pareto by courier, Funnel, Courier Scorecard, RCA workbench
-5. Open `/warehouse/queries/` → run `courier_scorecard.sql` (window + rank)
-6. Open `/python/notebooks/01_eda.ipynb` → t-test: Bluedart Tier-3 overcharge significant?
-
-## Stack (PA-first, production-flavoured)
-- **Warehouse (PRIMARY):** MS SQL Server — `warehouse/ddl/mssql/`, queries `warehouse/queries/mssql/` (T-SQL, SSMS-ready)
-- **Warehouse (portable):** Postgres + Snowflake DDL kept in sync (same grain)
-- **Streaming:** Kafka (Redpanda locally) — `settlement.raw`, `discrepancy.events`
-- **Transform:** dbt-style SQL models `/warehouse/models/` (staging → marts)
-- **Engine:** Node.js reconciliation (ported + hardened from FEA, 7 rules)
-- **Analytics:** Python pandas/scipy/sklearn, notebooks + scripts
-- **Serving:** Express KPI API + React dashboard + PowerBI dataset (`/powerbi/` + DAX)
-- **Ops:** Docker Compose, node-cron SLA job, idempotency keys, Great Expectations-style checks
-
-## Repo map
+## Architecture
 ```
-PLAN.md                  — full build plan + level gates
-/warehouse/ddl/          — star schema (postgres + snowflake)
-/warehouse/models/       — staging → marts SQL
-/warehouse/queries/      — 15 interview-ready analyst queries
-/warehouse/seed/         — deterministic 25k seeder
-/engine/                 — reconciliation (7 rules) + kafka producer/consumer
-/api/                    — KPI serving API
-/python/                 — notebooks + scorecard + forecast
-/dashboard/              — React product dashboard
-/powerbi/                — curated CSVs + measures.dax + build-guide
-/case-studies/           — RCA, Tier-2 entry, metrics, guesstimate
-/docs/                   — architecture, screenshots
+CSV seed (25k, deterministic signals) → MSSQL star schema (CourierAnalytic)
+  → sp_reconcile_batch, 7 rules, idempotent → fact_discrepancies
+  → Python runner → Kafka discrepancy.events (Redpanda) → fct_daily_kpis mart
+  → Python stats (t-test/χ²/scorecard/forecast) → React dashboard + PowerBI
+```
+- **Warehouse (primary):** MS SQL Server — `warehouse/ddl/mssql/`, 16 T-SQL queries in `warehouse/queries/mssql/` (RANK, PARTITION BY, LAG, ROW_NUMBER, NTILE, PERCENTILE_CONT). Postgres/Snowflake DDL kept portable.
+- **Engine:** `engine/sql/reconcile.sql` — 7 set-based rules with severity; `engine/reconcile.py` + `publish_events.py`.
+- **Analytics:** `python/scripts/` 01 EDA → 02 tests → 03 scorecard → 04 forecast → 05 export. Charts in `docs/img/`.
+- **Serving:** `dashboard/` (React + Recharts, static JSON, `npm run build` verified) + `powerbi/` (4 datasets, `measures.dax`, 10-min guide).
+- **Cases:** `case-studies/` — revenue-drop RCA, Blinkit Tier-2 entry, metrics glossary, guesstimate. Mapping: `docs/interview-mapping.md`.
+
+## Local run (SSMS-first)
+```bash
+# 1. DB
+sqlcmd -S localhost -E -C -Q "IF DB_ID('CourierAnalytic') IS NULL CREATE DATABASE CourierAnalytic"
+sqlcmd -S localhost -E -C -d CourierAnalytic -i warehouse/ddl/mssql/schema.sql
+# 2. Seed + load
+cd warehouse/seed && npm run generate && pip install pyodbc && python load_mssql.py --dir ./output
+# 3. Reconcile + mart
+sqlcmd -S localhost -E -C -d CourierAnalytic -Q "EXEC dbo.sp_reconcile_batch @batchId = NULL"
+sqlcmd -S localhost -E -C -d CourierAnalytic -i warehouse/models/marts/fct_daily_kpis_mssql.sql
+# 4. Analytics + exports
+cd ../../python && pip install -r requirements.txt && python scripts/01_eda.py && python scripts/02_hypothesis_tests.py && python scripts/03_scorecard.py && python scripts/04_forecast.py && python scripts/05_export_dashboard.py
+# 5. Kafka (optional) + dashboard
+docker compose up -d redpanda && cd ../engine && pip install -r requirements.txt && python reconcile.py
+cd ../dashboard && npm install && npm run dev
 ```
 
-## Rules (engine/)
-1. COD_SHORT_REMITTANCE — `settled < cod - min(2%, ₹10)`
-2. WEIGHT_DISPUTE — `charged > declared * 1.10`
-3. PHANTOM_RTO_CHARGE — `rto > 0 AND status = DELIVERED`
-4. OVERDUE_REMITTANCE — `settlement delay > 14d`
-5. DUPLICATE_SETTLEMENT — same AWB in multiple batches (`ROW_NUMBER()`)
-6. ETA_SLA_BREACH — `actualETA > promisedETA * 1.3` (Blinkit-style SLA)
-7. EXCESS_FORWARD_CHARGE — `forward > slab(weight, tier) * 1.15`
-
-## Status
-- [x] L0 scaffold + plan
-- [ ] L1 warehouse + seed + SQL
-- [ ] L2 streaming + engine
-- [ ] L3 python analytics
-- [ ] L4 dashboard + powerbi
-- [ ] L5 case studies + v1.0-pa-ready
-
-See `PLAN.md` for level-wise commits and push gates.
+Data is synthetic with injected RCA signals (see `python/README.md`) — the tests are designed to catch them.
+Status: `v1.0-pa-ready`. Interview map: `docs/interview-mapping.md`.
