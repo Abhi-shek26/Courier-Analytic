@@ -23,13 +23,13 @@
 ```
 CSV seed (25k, deterministic signals) → MSSQL star schema (CourierAnalytic)
   → sp_reconcile_batch, 7 rules, idempotent → fact_discrepancies
-  → Python runner → Kafka discrepancy.events (Redpanda) → fct_daily_kpis mart
+  → Python runner → Kafka discrepancy.events (KRaft) → fct_daily_kpis mart
   → Python stats (t-test/χ²/scorecard/forecast) → React dashboard + PowerBI
 ```
-- **Warehouse (primary):** MS SQL Server — `warehouse/ddl/mssql/`, 16 T-SQL queries in `warehouse/queries/mssql/` (RANK, PARTITION BY, LAG, ROW_NUMBER, NTILE, PERCENTILE_CONT). Postgres/Snowflake DDL kept portable.
+- **Warehouse (primary):** MS SQL Server — `warehouse/ddl/mssql/`, 6 T-SQL queries in `warehouse/queries/mssql/` (RANK, PARTITION BY, LAG, ROW_NUMBER, NTILE, PERCENTILE_CONT). Postgres/Snowflake DDL kept portable.
 - **Engine:** `engine/sql/reconcile.sql` — 7 set-based rules with severity; `engine/reconcile.py` + `publish_events.py`.
 - **Analytics:** `python/scripts/` 01 EDA → 02 tests → 03 scorecard → 04 forecast → 05 export. Charts in `docs/img/`.
-- **Serving:** `dashboard/` (React + Recharts, static JSON, `npm run build` verified) + `powerbi/` (4 datasets, `measures.dax`, 10-min guide).
+- **Serving:** `dashboard/` (React + Recharts, static JSON, `npm run build` verified) + `powerbi/` (7 datasets, `measures.dax` 12 measures, ~25-min guide).
 - **Cases:** `case-studies/` — revenue-drop RCA, Tier-2 expansion, metrics glossary, guesstimate.
 
 ## Local run (SSMS-first)
@@ -45,9 +45,9 @@ sqlcmd -S localhost -E -C -d CourierAnalytic -i warehouse/models/marts/fct_daily
 # 4. Analytics + exports
 cd ../../python && pip install -r requirements.txt && python scripts/01_eda.py && python scripts/02_hypothesis_tests.py && python scripts/03_scorecard.py && python scripts/04_forecast.py && python scripts/05_export_dashboard.py
 # 5. Kafka (optional) + dashboard
-docker compose up -d redpanda && cd ../engine && pip install -r requirements.txt && python reconcile.py
+docker compose up -d kafka && cd ../engine && pip install -r requirements.txt && python reconcile.py
 cd ../dashboard && npm install && npm run dev
 ```
 
 Data is synthetic with injected RCA signals (see `python/README.md`) — the tests are designed to catch them.
-Status: `v1.0-pa-ready`. Full walkthrough: `docs/`.
+Status: `v1.1` (Olist real-data + Kafka KRaft + pbix). Full walkthrough: `docs/`.

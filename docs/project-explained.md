@@ -41,10 +41,11 @@ checklist inside the database. Scans all settlements, applies 7 yes/no tests
 (COD short, weight, phantom RTO, overdue, duplicate, ETA breach, excess freight),
 attaching rupee loss + severity (HIGH/MEDIUM/LOW). Idempotent: safe to re-run.
 
-**Kafka / Redpanda (the conveyor belt).** Each mismatch becomes a message
+**Kafka (the conveyor belt).** Each mismatch becomes a message
 ("AWB100001, COD_SHORT, ₹400") on a topic. Other systems — SMS alerts, dispute
 tools, finance ledger — can consume independently without slowing the engine.
-Redpanda is a laptop-friendly Kafka that runs via Docker.
+Apache Kafka (KRaft, no Zookeeper) runs via Docker
+(`docker compose up -d kafka`, `localhost:29092`).
 
 **Python analytics (the detective).** Statistics, not gut feel: Welch t-test
 proves Bluedart Tier-3 inflation (+12.98%, p≈6e-256); chi-square proves festival

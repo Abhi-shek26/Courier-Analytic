@@ -1,4 +1,4 @@
-"""Publish discrepancy JSONL events to Kafka (Redpanda localhost:9092)."""
+"""Publish discrepancy JSONL events to Kafka (Apache Kafka KRaft localhost:29092)."""
 import json
 import sys
 from kafka import KafkaProducer

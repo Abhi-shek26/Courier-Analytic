@@ -5,7 +5,7 @@ Usage:
     python publish_events.py --file events/discrepancies_<ts>.jsonl
 
 Flow: dbo.sp_reconcile_batch (T-SQL, 7 rules) -> export JSONL ->
-      Kafka topic discrepancy.events (Redpanda localhost:9092) ->
+      Kafka topic discrepancy.events (Apache Kafka KRaft localhost:29092) ->
       refresh dbo.fct_daily_kpis.
 """
 import argparse
