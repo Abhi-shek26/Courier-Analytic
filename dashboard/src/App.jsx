@@ -8,8 +8,10 @@ const get = (f) => fetch(`data/${f}`).then((r) => r.json());
 const rs = (n) => `₹${Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
 const num = (n) => Number(n).toLocaleString('en-IN');
 
-const PIE_COLORS = ['#8b5cf6', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#64748b'];
-const DARK_TIP = { backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: 10, color: '#f1f5f9', fontSize: 12 };
+const PIE_COLORS = ['#8b5cf6', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#f472b6'];
+const BAR_COLORS = ['#8b5cf6', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b'];
+const DARK_TIP = { backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: 10, color: '#f1f5f9', fontSize: 12, padding: '8px 12px' };
+const AXIS = { fill: '#94a3b8', fontSize: 12 };
 
 function useData() {
   const [d, setD] = useState(null);
@@ -198,71 +200,104 @@ function Warehouse({ d }) {
 
       <div className="grid2">
         <div className="card">
-          <h3>Weekly leakage trend · 25k settlements</h3>
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={trend}>
-              <defs><linearGradient id="gLeak" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.7} /><stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.05} /></linearGradient></defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="wk" tickFormatter={(v) => v.slice(5)} minTickGap={32} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <YAxis tickFormatter={(v) => `${Math.round(v / 1000)}k`} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <Tooltip contentStyle={DARK_TIP} formatter={(v) => rs(v)} />
-              <Area type="monotone" dataKey="leakage" stroke="#8b5cf6" strokeWidth={2.5} fill="url(#gLeak)" />
-            </AreaChart>
-          </ResponsiveContainer>
-          <p className="muted">Forecast (Ridge R²=0.32, +₹7k/week): {forecast.map((f) => `${f.wk.slice(5)} ${rs(f.leakage)}`).join(' → ')}</p>
-        </div>
-        <div className="card">
-          <h3>Pareto — leakage by courier + cumulative %</h3>
-          <ResponsiveContainer width="100%" height={240}>
-            <ComposedChart data={paretoRun}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="courier_" interval={0} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <YAxis yAxisId="l" tickFormatter={(v) => `${Math.round(v / 1000)}k`} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <YAxis yAxisId="r" orientation="right" domain={[0, 100]} tickFormatter={(v) => `${v}%`} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <Tooltip contentStyle={DARK_TIP} formatter={(v, n) => (n === 'running' ? `${v}%` : rs(v))} />
-              <Bar yAxisId="l" dataKey="leakage" fill="#3b82f6" radius={[8, 8, 0, 0]} />
-              <Line yAxisId="r" type="monotone" dataKey="running" stroke="#f59e0b" strokeWidth={2.5} dot={false} />
+          <h3>Weekly leakage trend</h3>
+          <p className="chart-sub">Rupees leaked per settlement week · right axis = disputed AWBs</p>
+          <div className="chart-box">
+          <ResponsiveContainer width="100%" height={320}>
+            <ComposedChart data={trend} margin={{ top: 10, right: 8, left: 4, bottom: 0 }}>
+              <defs>
+                <linearGradient id="gLeak" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.65} /><stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.04} /></linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <XAxis dataKey="wk" tickFormatter={(v) => v.slice(5)} minTickGap={40} tick={AXIS} axisLine={false} tickLine={false} />
+              <YAxis yAxisId="l" tickFormatter={(v) => `${Math.round(v / 1000)}k`} tick={AXIS} axisLine={false} tickLine={false} width={48} />
+              <YAxis yAxisId="r" orientation="right" tick={AXIS} axisLine={false} tickLine={false} width={40} />
+              <Tooltip contentStyle={DARK_TIP} formatter={(v, n) => (n === 'disputes' ? [num(v), 'disputes'] : [rs(v), 'leakage'])} labelFormatter={(v) => `week of ${v}`} />
+              <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+              <Area yAxisId="l" type="monotone" dataKey="leakage" name="leakage" stroke="#8b5cf6" strokeWidth={3} fill="url(#gLeak)" />
+              <Line yAxisId="r" type="monotone" dataKey="disputes" name="disputes" stroke="#22d3ee" strokeWidth={2} dot={false} strokeDasharray="6 4" />
             </ComposedChart>
           </ResponsiveContainer>
-          <p className="muted">Shiprocket ₹10.09L (45%) · Duplicates ₹9.08L top type · Overdue ₹7.72L.</p>
+          </div>
+          <p className="muted" style={{ marginTop: 14 }}>Forecast (Ridge R²=0.32, +₹7k/week): {forecast.map((f) => `${f.wk.slice(5)} ${rs(f.leakage)}`).join(' → ')}</p>
+        </div>
+        <div className="card">
+          <h3>Pareto — leakage by courier</h3>
+          <p className="chart-sub">Bars = rupees leaked · orange line = cumulative share</p>
+          <div className="chart-box">
+          <ResponsiveContainer width="100%" height={320}>
+            <ComposedChart data={paretoRun} margin={{ top: 10, right: 8, left: 4, bottom: 0 }} barCategoryGap="28%">
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <XAxis dataKey="courier_" interval={0} tick={{ fill: '#e2e8f0', fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis yAxisId="l" tickFormatter={(v) => `${Math.round(v / 1000)}k`} tick={AXIS} axisLine={false} tickLine={false} width={52} />
+              <YAxis yAxisId="r" orientation="right" domain={[0, 100]} tickFormatter={(v) => `${v}%`} tick={AXIS} axisLine={false} tickLine={false} width={44} />
+              <Tooltip contentStyle={DARK_TIP} formatter={(v, n) => (n === 'running' ? [`${v}%`, 'cumulative'] : [rs(v), 'leakage'])} />
+              <Bar yAxisId="l" dataKey="leakage" name="leakage" radius={[10, 10, 4, 4]} maxBarSize={64}>
+                {paretoRun.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+              </Bar>
+              <Line yAxisId="r" type="monotone" dataKey="running" name="cumulative" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 3.5, fill: '#f59e0b' }} />
+            </ComposedChart>
+          </ResponsiveContainer>
+          </div>
+          <p className="muted" style={{ marginTop: 14 }}>Shiprocket ₹10.09L (45%) · Duplicates ₹9.08L top type · Overdue ₹7.72L.</p>
         </div>
       </div>
 
       <div className="grid3">
         <div className="card">
           <h3>Leakage by type</h3>
-          <ResponsiveContainer width="100%" height={230}>
-            <PieChart><Pie data={byType} dataKey="value" nameKey="name" innerRadius={52} outerRadius={85} paddingAngle={2}>
-              {byType.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-            </Pie><Tooltip contentStyle={DARK_TIP} formatter={(v) => rs(v)} /><Legend wrapperStyle={{ fontSize: 11 }} /></PieChart>
+          <p className="chart-sub">Share of ₹22.3L across 7 rules</p>
+          <div className="chart-box">
+          <ResponsiveContainer width="100%" height={280}>
+            <PieChart>
+              <Pie data={byType} dataKey="value" nameKey="name" innerRadius={62} outerRadius={96} paddingAngle={3} stroke="#0f1930" strokeWidth={3}>
+                {byType.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+              </Pie>
+              <Tooltip contentStyle={DARK_TIP} formatter={(v, n, p) => [rs(v), `${p?.payload?.name} · ${((100 * v) / kpis.leakage_rs).toFixed(1)}%`]} />
+              <Legend wrapperStyle={{ fontSize: 11.5, lineHeight: '20px' }} />
+            </PieChart>
           </ResponsiveContainer>
+          </div>
         </div>
         <div className="card">
           <h3>Leakage by tier</h3>
-          <ResponsiveContainer width="100%" height={230}>
-            <PieChart><Pie data={byTier} dataKey="value" nameKey="name" innerRadius={52} outerRadius={85} paddingAngle={3}>
-              {byTier.map((_, i) => <Cell key={i} fill={PIE_COLORS[(i + 2) % PIE_COLORS.length]} />)}
-            </Pie><Tooltip contentStyle={DARK_TIP} formatter={(v) => rs(v)} /><Legend wrapperStyle={{ fontSize: 11 }} /></PieChart>
+          <p className="chart-sub">Where geography hurts most</p>
+          <div className="chart-box">
+          <ResponsiveContainer width="100%" height={280}>
+            <PieChart>
+              <Pie data={byTier} dataKey="value" nameKey="name" innerRadius={62} outerRadius={96} paddingAngle={4} stroke="#0f1930" strokeWidth={3}>
+                {byTier.map((_, i) => <Cell key={i} fill={PIE_COLORS[(i + 2) % PIE_COLORS.length]} />)}
+              </Pie>
+              <Tooltip contentStyle={DARK_TIP} formatter={(v, n, p) => [rs(v), `${p?.payload?.name} · ${((100 * v) / kpis.leakage_rs).toFixed(1)}%`]} />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+            </PieChart>
           </ResponsiveContainer>
-          <p className="muted">Tier-1 ₹8.74L · Tier-2 ₹6.95L · Tier-3 ₹6.65L.</p>
+          </div>
+          <p className="muted" style={{ marginTop: 12 }}>Tier-1 ₹8.74L · Tier-2 ₹6.95L · Tier-3 ₹6.65L.</p>
         </div>
         <div className="card">
           <h3>Reliability scorecard</h3>
-          <ResponsiveContainer width="100%" height={230}>
-            <BarChart data={[...scorecard].sort((a, b) => b.reliability - a.reliability)} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis type="number" domain={[55, 75]} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <YAxis type="category" dataKey="courier_" width={80} tick={{ fill: '#e2e8f0', fontSize: 12 }} />
-              <Tooltip contentStyle={DARK_TIP} />
-              <Bar dataKey="reliability" fill="#10b981" radius={[0, 8, 8, 0]} />
+          <p className="chart-sub">Higher = more reliable (volume-weighted)</p>
+          <div className="chart-box">
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={[...scorecard].sort((a, b) => b.reliability - a.reliability)} layout="vertical" margin={{ top: 4, right: 16, left: 8, bottom: 0 }} barCategoryGap="24%">
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />
+              <XAxis type="number" domain={[55, 75]} tick={AXIS} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="courier_" width={88} tick={{ fill: '#e2e8f0', fontSize: 13 }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={DARK_TIP} formatter={(v, n, p) => (n === 'reliability' ? [Number(v).toFixed(1), `score · ${p?.payload?.courier_}`] : v)} />
+              <Bar dataKey="reliability" name="score" radius={[4, 10, 10, 4]} maxBarSize={26}>
+                {[...scorecard].sort((a, b) => b.reliability - a.reliability).map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
       <div className="grid2">
         <div className="card">
           <h3>Funnel — orders → disputes</h3>
+          <p className="chart-sub">23.1% of settled AWBs end disputed</p>
           {funnel.map((f) => (
             <div className="funnel-row" key={f.stage}>
               <span>{f.stage}</span>
@@ -270,15 +305,16 @@ function Warehouse({ d }) {
               <b>{num(f.n)}</b>
             </div>
           ))}
-          <h3 style={{ marginTop: 14 }}>Tier entry math</h3>
+          <h3 className="sub-h">Tier entry math</h3>
           <table className="tbl"><thead><tr><th>Tier</th><th>Orders</th><th>Leakage % GMV</th></tr></thead>
             <tbody>{tiers.map((t) => <tr key={t.tier}><td>{t.tier}</td><td>{num(t.orders_)}</td><td>{(100 * t.leakage / t.gmv).toFixed(2)}%</td></tr>)}</tbody></table>
         </div>
         <div className="card">
           <h3>Courier scorecard (detail)</h3>
+          <p className="chart-sub">Rank · dispute % · rupees leaked</p>
           <div className="tbl-wrap"><table className="tbl"><thead><tr><th>#</th><th>Courier</th><th>Score</th><th>Dispute %</th><th>Leakage</th></tr></thead>
             <tbody>{scorecard.map((s) => <tr key={s.courier_}><td>{s.rank}</td><td>{s.courier_}</td><td><b>{Number(s.reliability).toFixed(1)}</b></td><td>{(100 * s.dispute).toFixed(1)}%</td><td>{rs(s.leakage)}</td></tr>)}</tbody></table></div>
-          <h3 style={{ marginTop: 14 }}>Merchant health (top by GMV)</h3>
+          <h3 className="sub-h">Merchant health (top by GMV)</h3>
           <div className="tbl-wrap"><table className="tbl"><thead><tr><th>Merchant</th><th>Cat</th><th>Orders</th><th>Health</th></tr></thead>
             <tbody>{merchants.slice(0, 8).map((m) => <tr key={m.merchant_}><td>{m.merchant_}</td><td>{m.category}</td><td>{m.orders_}</td><td><span className={`pill ${m.health}`}>{m.health}</span></td></tr>)}</tbody></table></div>
         </div>
@@ -311,48 +347,59 @@ function Olist({ d }) {
 
       <div className="grid2">
         <div className="card">
-          <h3>Monthly orders vs late orders (seasonality spikes)</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <ComposedChart data={monthly}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="ym" tickFormatter={(v) => v.slice(2)} minTickGap={28} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} />
+          <h3>Monthly orders vs late orders</h3>
+          <p className="chart-sub">Volume bars · red line = late deliveries (seasonality spikes)</p>
+          <div className="chart-box">
+          <ResponsiveContainer width="100%" height={300}>
+            <ComposedChart data={monthly} margin={{ top: 10, right: 8, left: 4, bottom: 0 }} barCategoryGap="30%">
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <XAxis dataKey="ym" tickFormatter={(v) => v.slice(2)} minTickGap={36} tick={AXIS} axisLine={false} tickLine={false} />
+              <YAxis tick={AXIS} axisLine={false} tickLine={false} width={52} />
               <Tooltip contentStyle={DARK_TIP} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Bar dataKey="orders" name="orders" fill="#3b82f6" radius={[6, 6, 0, 0]} />
-              <Line type="monotone" dataKey="late" name="late orders" stroke="#ef4444" strokeWidth={2.5} dot={false} />
+              <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+              <Bar dataKey="orders" name="orders" fill="#3b82f6" radius={[8, 8, 4, 4]} maxBarSize={38} />
+              <Line type="monotone" dataKey="late" name="late orders" stroke="#ef4444" strokeWidth={3} dot={{ r: 3, fill: '#ef4444' }} />
             </ComposedChart>
           </ResponsiveContainer>
+          </div>
         </div>
         <div className="card">
-          <h3>Late → bad reviews (stacked)</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={reviews}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis dataKey="flag" tick={{ fill: '#e2e8f0', fontSize: 12 }} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <Tooltip contentStyle={DARK_TIP} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Bar dataKey="Bad" stackId="a" fill="#ef4444" radius={[0, 0, 0, 0]} />
-              <Bar dataKey="Good" stackId="a" fill="#10b981" radius={[8, 8, 0, 0]} />
+          <h3>Late → bad reviews</h3>
+          <p className="chart-sub">Stacked counts · late buyers rate badly far more often</p>
+          <div className="chart-box">
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={reviews} margin={{ top: 10, right: 8, left: 4, bottom: 0 }} barCategoryGap="32%">
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <XAxis dataKey="flag" tick={{ fill: '#e2e8f0', fontSize: 13 }} axisLine={false} tickLine={false} />
+              <YAxis tick={AXIS} axisLine={false} tickLine={false} width={56} tickFormatter={(v) => (v >= 1000 ? `${Math.round(v / 1000)}k` : v)} />
+              <Tooltip contentStyle={DARK_TIP} formatter={(v) => num(v)} />
+              <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+              <Bar dataKey="Bad" stackId="a" name="bad reviews" fill="#ef4444" maxBarSize={72} />
+              <Bar dataKey="Good" stackId="a" name="good reviews" fill="#10b981" radius={[10, 10, 4, 4]} maxBarSize={72} />
             </BarChart>
           </ResponsiveContainer>
-          <p className="muted">Late: 4,994 bad of 7,633 · On-time: 15,087 bad of 87,966 (χ²=9833, p≈0).</p>
+          </div>
+          <p className="muted" style={{ marginTop: 14 }}>Late: 4,994 bad of 7,633 · On-time: 15,087 bad of 87,966 (χ²=9833, p≈0).</p>
         </div>
       </div>
 
       <div className="grid2">
         <div className="card">
-          <h3>Worst sellers by late rate (scorecard analogue)</h3>
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={d.olistSellers} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-              <XAxis type="number" domain={[0, 0.35]} tickFormatter={(v) => `${Math.round(v * 100)}%`} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <YAxis type="category" dataKey="seller" width={70} tick={{ fill: '#e2e8f0', fontSize: 11 }} />
-              <Tooltip contentStyle={DARK_TIP} formatter={(v) => `${(100 * v).toFixed(1)}%`} />
-              <Bar dataKey="late_rate" fill="#f59e0b" radius={[0, 8, 8, 0]} />
+          <h3>Worst sellers by late rate</h3>
+          <p className="chart-sub">Scorecard analogue · top 15 of 462 sellers</p>
+          <div className="chart-box">
+          <ResponsiveContainer width="100%" height={320}>
+            <BarChart data={d.olistSellers} layout="vertical" margin={{ top: 4, right: 20, left: 8, bottom: 0 }} barCategoryGap="22%">
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" horizontal={false} />
+              <XAxis type="number" domain={[0, 0.35]} tickFormatter={(v) => `${Math.round(v * 100)}%`} tick={AXIS} axisLine={false} tickLine={false} />
+              <YAxis type="category" dataKey="seller" width={76} tick={{ fill: '#e2e8f0', fontSize: 11.5 }} axisLine={false} tickLine={false} />
+              <Tooltip contentStyle={DARK_TIP} formatter={(v, n, p) => [`${(100 * v).toFixed(1)}% · ${p?.payload?.orders} orders`, 'late rate']} />
+              <Bar dataKey="late_rate" name="late rate" radius={[4, 10, 10, 4]} maxBarSize={20}>
+                {d.olistSellers.map((_, i) => <Cell key={i} fill={i < 3 ? '#ef4444' : '#f59e0b'} />)}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
+          </div>
         </div>
         <div className="card">
           <h3>Settlement analogues on real data</h3>
