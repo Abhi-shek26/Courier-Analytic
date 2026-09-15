@@ -1,0 +1,22 @@
+[
+ {
+  "late_flag": "On-time",
+  "sentiment": "Bad",
+  "orders_": "15087"
+ },
+ {
+  "late_flag": "Late",
+  "sentiment": "Bad",
+  "orders_": "4994"
+ },
+ {
+  "late_flag": "Late",
+  "sentiment": "Good",
+  "orders_": "2639"
+ },
+ {
+  "late_flag": "On-time",
+  "sentiment": "Good",
+  "orders_": "72879"
+ }
+]
